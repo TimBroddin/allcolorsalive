@@ -23,28 +23,16 @@ module.exports.post = async (event, context) => {
 
   const buffer = await image.quality(80).getBufferAsync("image/jpeg");
 
-  const publishResult = await ig.publish.photo({
-    file: buffer, // image buffer, you also can specify image from your disk using fs
-    caption: `#color #colors #${counter.toString(16).padStart(6, "0")}` // nice caption (optional)
+  await ig.publish.photo({
+    file: buffer,
+    caption: `#color #colors #${counter.toString(16).padStart(6, "0")}`
   });
 
   const storyImage = await new Jimp(1080, 1920, color);
   const storyBuffer = await storyImage.quality(80).getBufferAsync("image/jpeg");
 
-  const publishStoryResult = await ig.publish.story({
-    file: storyBuffer, // image buffer, you also can specify image from your disk using fs
-    hashtags: [
-      {
-        x: 0.5,
-        y: 0.75,
-        width: 0.9,
-        height: 0.5,
-        rotation: 0.0,
-        is_sticker: true,
-        tag_name: "#" + counter.toString(16).padStart(6, "0"),
-        use_custom_title: false
-      }
-    ]
+  await ig.publish.story({
+    file: storyBuffer
   });
 
   await setCounter(counter + 1);
@@ -57,10 +45,10 @@ module.exports.follow = async (event, context) => {
     process.env.IG_PASSWORD
   );
 
-  const feed = ig.feed.discover();
+  const discoveryFeed = ig.feed.discover();
 
-  const items = await feed.items();
-  items.forEach(item => {
+  const discoverItems = await discoveryFeed.items();
+  discoverItems.forEach(item => {
     if (Math.round(Math.random() * 10) === 5) {
       console.log("Follow", item);
       if (item && item.user && item.user.pk) {
@@ -74,9 +62,9 @@ module.exports.follow = async (event, context) => {
   console.log("Followers feed");
 
   const followersFeed = ig.feed.accountFollowers(loggedInUser.pk);
-  const items2 = await followersFeed.items();
+  const followerItems = await followersFeed.items();
 
-  items2.forEach(user => {
+  followerItems.forEach(user => {
     if (Math.round(Math.random() * 10) === 5) {
       console.log("Follow");
       ig.friendship.create(user.pk);
