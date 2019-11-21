@@ -1,0 +1,22 @@
+service: everycolor # NOTE: update this with your service name
+provider:
+  name: aws
+  region: eu-west-1
+  runtime: nodejs10.x
+  profile: timbroddin
+  memorySize: 256
+  timeout: 60
+
+functions:
+  post:
+    handler: handler.post
+    timeout: 60
+    events:
+      - schedule: cron(*/5 * * * ? *)
+  follow:
+    handler: handler.follow
+    events:
+      - schedule: cron(15 */3 * * ? *)
+
+plugins:
+  - serverless-offline
